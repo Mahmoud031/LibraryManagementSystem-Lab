@@ -1,0 +1,74 @@
+﻿@model BookIndexViewModel
+
+@{
+    ViewData["Title"] = "Books";
+}
+
+<div class="container py-5 books-page">
+    <a asp-controller="Home" asp-action="Index" class="back-link">← Back</a>
+
+    <div class="date-line mb-2">@Model.CurrentDate</div>
+
+    <h1 class="page-title">Books</h1>
+    <p class="page-subtitle">Manage and audit your books catalog.</p>
+
+    <div class="books-toolbar">
+        <div class="books-toolbar-left">
+            <div class="search-box">
+                <span class="search-icon">⌕</span>
+                <input type="text" class="form-control search-input" placeholder="Search books..." />
+            </div>
+
+            <select asp-for="SelectedCategory" asp-items="Model.Categories" class="form-select category-select"></select>
+        </div>
+
+        <a asp-action="Add" class="add-book-btn">＋ Add Book</a>
+    </div>
+
+    <div class="books-table-card">
+        <div class="table-responsive">
+            <table class="table books-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>TITLE</th>
+                        <th>AUTHOR</th>
+                        <th>ISBN</th>
+                        <th>CATEGORY</th>
+                        <th>YEAR</th>
+                        <th>DATE ADDED</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Books.Any())
+                    {
+                        @foreach (var book in Model.Books)
+                        {
+                            <tr>
+                                <td>@book.Title</td>
+                                <td>@book.Author?.Name</td>
+                                <td>@book.ISBN</td>
+                                <td>@book.Category?.Name</td>
+                                <td>@book.PublishYear</td>
+                                <td>1/10/2025</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="Details" asp-route-id="@book.Id" class="action-link details-link">👁 Details</a>
+                                        <a asp-action="Edit" asp-route-id="@book.Id" class="action-link edit-link">✎ Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@book.Id" class="action-link delete-link">🗑 Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No books found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

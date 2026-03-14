@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../ef core lab2/ef core lab2 q1/LibraryManagementSystem.csproj" />
+  <Project Path="WebApplication1/WebApplication1.csproj" />
+</Solution>

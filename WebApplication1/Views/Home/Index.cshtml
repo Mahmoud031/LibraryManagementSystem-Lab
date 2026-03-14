@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container py-5 home-page">
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <a asp-controller="Book" asp-action="Index" class="top-nav-card">
+                <span>📖</span>
+                <span>Books</span>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Category" asp-action="Index" class="top-nav-card">
+                <span>◫</span>
+                <span>Categories</span>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Author" asp-action="Index" class="top-nav-card">
+                <span>👥</span>
+                <span>Authors</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="hero-card">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-text-card">
+                    <h2>Library<br />Management</h2>
+                    <p>
+                        Simple Admin Dashboard for managing your library inventory.
+                        Track books, organize categories, and manage authors all in one place.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <img class="hero-image"
+                     src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1200&q=80"
+                     alt="Library" />
+            </div>
+        </div>
+    </div>
+</div>

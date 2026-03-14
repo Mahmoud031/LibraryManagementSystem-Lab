@@ -1,0 +1,53 @@
+﻿@model BookDetailsViewModel
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<div class="container py-5 details-page">
+    <a asp-action="Index" class="back-link">← Back</a>
+
+    <div class="date-line mb-2">@Model.CurrentDate</div>
+
+    <h1 class="page-title">Book Details</h1>
+    <p class="page-subtitle">Full information for this book.</p>
+
+    @if (Model.Book != null)
+    {
+        <div class="details-card">
+            <div class="detail-item">
+                <div class="detail-label">TITLE</div>
+                <div class="detail-value">@Model.Book.Title</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">AUTHOR</div>
+                <div class="detail-value">@Model.Book.Author?.Name</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">ISBN</div>
+                <div class="detail-value">@Model.Book.ISBN</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">CATEGORY</div>
+                <div class="detail-value">@Model.Book.Category?.Name</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">YEAR</div>
+                <div class="detail-value">@Model.Book.PublishYear</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">DATE ADDED</div>
+                <div class="detail-value">1/10/2025</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Book not found.</div>
+    }
+</div>
