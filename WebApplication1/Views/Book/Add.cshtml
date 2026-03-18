@@ -1,9 +1,73 @@
-﻿@{
+﻿@model WebApplication1.ViewModels.BookCreateViewModel
+
+@{
     ViewData["Title"] = "Add Book";
 }
 
 <div class="container py-5">
     <a asp-action="Index" class="back-link">← Back</a>
     <h1 class="page-title mt-3">Add Book</h1>
-    <p class="page-subtitle">This page is empty for now.</p>
+    <p class="page-subtitle">Create a new book record.</p>
+
+    <div class="details-card">
+        <form asp-action="Add" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ISBN" class="form-label"></label>
+                <input asp-for="ISBN" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PublishYear" class="form-label"></label>
+                <input asp-for="PublishYear" class="form-control" />
+                <span asp-validation-for="PublishYear" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Price" class="form-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="IsRestricted" class="form-label"></label>
+                <select asp-for="IsRestricted" class="form-select">
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label"></label>
+                <select asp-for="Status" asp-items="Model.Statuses" class="form-select"></select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AuthorId" class="form-label"></label>
+                <select asp-for="AuthorId" asp-items="Model.Authors" class="form-select"></select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CategoryId" class="form-label"></label>
+                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-select"></select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Files" class="form-label">Attachments</label>
+                <input asp-for="Files" type="file" class="form-control" multiple />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

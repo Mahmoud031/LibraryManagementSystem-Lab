@@ -1,4 +1,4 @@
-﻿@model BookIndexViewModel
+﻿@model WebApplication1.ViewModels.BookIndexViewModel
 
 @{
     ViewData["Title"] = "Books";
@@ -35,7 +35,9 @@
                         <th>ISBN</th>
                         <th>CATEGORY</th>
                         <th>YEAR</th>
-                        <th>DATE ADDED</th>
+                        <th>PRICE</th>
+                        <th>STATUS</th>
+                        <th>FILES</th>
                         <th>ACTIONS</th>
                     </tr>
                 </thead>
@@ -46,11 +48,13 @@
                         {
                             <tr>
                                 <td>@book.Title</td>
-                                <td>@book.Author?.Name</td>
+                                <td>@book.AuthorName</td>
                                 <td>@book.ISBN</td>
-                                <td>@book.Category?.Name</td>
+                                <td>@book.CategoryName</td>
                                 <td>@book.PublishYear</td>
-                                <td>1/10/2025</td>
+                                <td>@book.Price</td>
+                                <td>@book.Status</td>
+                                <td>@book.AttachmentsCount</td>
                                 <td>
                                     <div class="action-buttons">
                                         <a asp-action="Details" asp-route-id="@book.Id" class="action-link details-link">👁 Details</a>
@@ -64,7 +68,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-4">No books found.</td>
+                            <td colspan="9" class="text-center py-4">No books found.</td>
                         </tr>
                     }
                 </tbody>

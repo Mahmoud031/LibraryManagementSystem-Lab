@@ -1,9 +1,43 @@
-﻿@{
+﻿@model WebApplication1.ViewModels.BookDetailsViewModel
+
+@{
     ViewData["Title"] = "Delete Book";
 }
 
 <div class="container py-5">
     <a asp-action="Index" class="back-link">← Back</a>
     <h1 class="page-title mt-3">Delete Book</h1>
-    <p class="page-subtitle">This page is empty for now.</p>
+    <p class="page-subtitle">Are you sure you want to delete this book?</p>
+
+    <div class="details-card">
+        <div class="mb-3"><strong>Title:</strong> @Model.Title</div>
+        <div class="mb-3"><strong>ISBN:</strong> @Model.ISBN</div>
+        <div class="mb-3"><strong>Publish Year:</strong> @Model.PublishYear</div>
+        <div class="mb-3"><strong>Price:</strong> @Model.Price</div>
+        <div class="mb-3"><strong>Is Restricted:</strong> @Model.IsRestricted</div>
+        <div class="mb-3"><strong>Status:</strong> @Model.Status</div>
+
+        <div class="mb-3">
+            <strong>Attachments:</strong>
+            @if (Model.Attachments.Any())
+            {
+                <ul class="mb-0 mt-2">
+                    @foreach (var file in Model.Attachments)
+                    {
+                        <li>@file.FileName</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span> No attachments</span>
+            }
+        </div>
+
+        <form asp-action="DeleteConfirmed" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
 </div>

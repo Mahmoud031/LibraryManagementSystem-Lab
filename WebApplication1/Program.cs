@@ -23,7 +23,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Middlewares from previous lab
 app.UseMiddleware<RequestLogMiddleware>();
 app.UseMiddleware<BookListMiddleware>();
 app.UseMiddleware<BookDetailsMiddleware>();
@@ -32,7 +31,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// ÈÏá app.Run ÇáäåÇÆí
+
 app.MapFallback(async context =>
 {
     context.Response.ContentType = "text/html";
