@@ -1,0 +1,39 @@
+﻿@model List<WebApplication1.Dtos.Books.RelatedBookDto>
+
+<div class="mt-5">
+    <h3 class="mb-3">Related Books</h3>
+
+    @if (Model.Any())
+    {
+        <div class="row g-3">
+            @foreach (var book in Model)
+            {
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <p class="mb-2"><strong>Author:</strong> @book.AuthorName</p>
+                            <p class="mb-2"><strong>Category:</strong> @book.CategoryName</p>
+                            <p class="mb-2"><strong>Year:</strong> @book.PublishYear</p>
+                            <p class="mb-2"><strong>Price:</strong> @book.Price</p>
+                            <p class="mb-3">
+                                <strong>Availability:</strong>
+                                <book-availability status="@book.Status" is-restricted="@book.IsRestricted"></book-availability>
+                            </p>
+
+                            <a asp-controller="Book" asp-action="Details" asp-route-id="@book.Id" class="btn btn-sm btn-outline-primary">
+                                Open
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light border">
+            No related books found.
+        </div>
+    }
+</div>

@@ -50,7 +50,9 @@
 
         <div class="detail-item">
             <div class="detail-label">STATUS</div>
-            <div class="detail-value">@Model.Status</div>
+            <div class="detail-value">
+                <book-availability status="@Model.Status" is-restricted="@Model.IsRestricted"></book-availability>
+            </div>
         </div>
 
         <div class="detail-item">
@@ -73,5 +75,33 @@
                 }
             </div>
         </div>
+    </div>
+
+    <div class="mt-5">
+        <h3 class="mb-3">Book Card</h3>
+
+        <partial name="Partials/_BookCardPartial"
+                 model='new BookCardDto
+                 {
+                     Id = Model.Id,
+                     Title = Model.Title,
+                     AuthorName = Model.AuthorName,
+                     CategoryName = Model.CategoryName,
+                     PublishYear = Model.PublishYear,
+                     Price = Model.Price,
+                     Status = Model.Status,
+                     IsRestricted = Model.IsRestricted,
+                     AttachmentsCount = Model.Attachments.Count
+                 }' />
+    </div>
+
+    <div class="mt-5">
+        @await Component.InvokeAsync("RelatedBooks", new
+                {
+            currentBookId = Model.Id,
+                categoryId = Model.CategoryId,
+                authorId = Model.AuthorId,
+                publishYear = Model.PublishYear
+                })
     </div>
 </div>

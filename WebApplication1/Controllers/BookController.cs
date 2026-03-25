@@ -1,33 +1,41 @@
-﻿using LibraryManagementSystem.Data;
-using LibraryManagementSystem.Models;
+﻿using LibraryManagementSystem.Models;
+using LibraryManagementSystem.Repositories.Books;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using WebApplication1.ViewModels;
 
 namespace WebApplication1.Controllers
 {
     public class BookController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IBookRepository _bookRepository;
         private readonly IWebHostEnvironment _environment;
 
-        public BookController(AppDbContext context, IWebHostEnvironment environment)
+        public BookController(IBookRepository bookRepository, IWebHostEnvironment environment)
         {
-            _context = context;
+            _bookRepository = bookRepository;
             _environment = environment;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string? searchText, decimal? minPrice, decimal? maxPrice, int? selectedCategoryId, int page = 1)
         {
             TempData["CurrentDate"] = DateTime.Now.ToString("dddd, MMMM dd, yyyy");
 
-            var books = _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.Category)
-                .Include(b => b.Attachments)
-                .AsNoTracking()
-                .Select(b => new BookListItemViewModel
+            int pageSize = 5;
+
+            var books = _bookRepository.GetAll(searchText, minPrice, maxPrice, selectedCategoryId, page, pageSize);
+            var totalCount = _bookRepository.GetCount(searchText, minPrice, maxPrice, selectedCategoryId);
+
+            var categories = _bookRepository.GetCategorySelectList();
+            categories.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "All Categories"
+            });
+
+            var vm = new BookIndexViewModel
+            {
+                Books = books.Select(b => new BookListItemViewModel
                 {
                     Id = b.Id,
                     Title = b.Title,
@@ -39,28 +47,14 @@ namespace WebApplication1.Controllers
                     IsRestricted = b.IsRestricted,
                     Status = b.Status.ToString(),
                     AttachmentsCount = b.Attachments.Count
-                })
-                .ToList();
-
-            var categories = _context.Categories
-                .AsNoTracking()
-                .Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Name
-                })
-                .ToList();
-
-            categories.Insert(0, new SelectListItem
-            {
-                Value = "",
-                Text = "All columns"
-            });
-
-            var vm = new BookIndexViewModel
-            {
-                Books = books,
+                }).ToList(),
                 Categories = categories,
+                SearchText = searchText,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                SelectedCategoryId = selectedCategoryId,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
                 CurrentDate = TempData["CurrentDate"]?.ToString()
             };
 
@@ -71,12 +65,7 @@ namespace WebApplication1.Controllers
 
         public IActionResult Details(int id)
         {
-            var book = _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.Category)
-                .Include(b => b.Attachments)
-                .AsNoTracking()
-                .FirstOrDefault(b => b.Id == id);
+            var book = _bookRepository.GetDetails(id);
 
             if (book == null)
                 return NotFound();
@@ -84,6 +73,8 @@ namespace WebApplication1.Controllers
             var vm = new BookDetailsViewModel
             {
                 Id = book.Id,
+                AuthorId = book.AuthorId,
+                CategoryId = book.CategoryId,
                 Title = book.Title,
                 ISBN = book.ISBN,
                 PublishYear = book.PublishYear,
@@ -132,17 +123,24 @@ namespace WebApplication1.Controllers
                 IsRestricted = vm.IsRestricted,
                 Status = vm.Status,
                 AuthorId = vm.AuthorId,
-                CategoryId = vm.CategoryId
+                CategoryId = vm.CategoryId,
+                Attachments = new List<BookAttachment>()
             };
 
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            _bookRepository.Add(book);
+            _bookRepository.Save();
 
             if (vm.Files != null && vm.Files.Any())
             {
                 var attachments = await SaveFilesAsync(vm.Files, book.Id);
-                _context.BookAttachments.AddRange(attachments);
-                await _context.SaveChangesAsync();
+
+                foreach (var attachment in attachments)
+                {
+                    book.Attachments.Add(attachment);
+                }
+
+                _bookRepository.Update(book);
+                _bookRepository.Save();
             }
 
             return RedirectToAction("Index");
@@ -151,9 +149,7 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var book = _context.Books
-                .Include(b => b.Attachments)
-                .FirstOrDefault(b => b.Id == id);
+            var book = _bookRepository.GetById(id);
 
             if (book == null)
                 return NotFound();
@@ -191,9 +187,7 @@ namespace WebApplication1.Controllers
                 return View(vm);
             }
 
-            var book = _context.Books
-                .Include(b => b.Attachments)
-                .FirstOrDefault(b => b.Id == vm.Id);
+            var book = _bookRepository.GetById(vm.Id);
 
             if (book == null)
                 return NotFound();
@@ -211,16 +205,18 @@ namespace WebApplication1.Controllers
             if (vm.Files != null && vm.Files.Any())
             {
                 DeletePhysicalFiles(book.Attachments.ToList());
-
-                _context.BookAttachments.RemoveRange(book.Attachments);
-                await _context.SaveChangesAsync();
+                book.Attachments.Clear();
 
                 var newAttachments = await SaveFilesAsync(vm.Files, book.Id);
-                _context.BookAttachments.AddRange(newAttachments);
+
+                foreach (var attachment in newAttachments)
+                {
+                    book.Attachments.Add(attachment);
+                }
             }
 
-            _context.Books.Update(book);
-            await _context.SaveChangesAsync();
+            _bookRepository.Update(book);
+            _bookRepository.Save();
 
             return RedirectToAction("Index");
         }
@@ -228,12 +224,7 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var book = _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.Category)
-                .Include(b => b.Attachments)
-                .AsNoTracking()
-                .FirstOrDefault(b => b.Id == id);
+            var book = _bookRepository.GetDetails(id);
 
             if (book == null)
                 return NotFound();
@@ -241,6 +232,8 @@ namespace WebApplication1.Controllers
             var vm = new BookDetailsViewModel
             {
                 Id = book.Id,
+                AuthorId = book.AuthorId,
+                CategoryId = book.CategoryId,
                 Title = book.Title,
                 ISBN = book.ISBN,
                 PublishYear = book.PublishYear,
@@ -261,18 +254,15 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var book = _context.Books
-                .Include(b => b.Attachments)
-                .FirstOrDefault(b => b.Id == id);
+            var book = _bookRepository.GetById(id);
 
             if (book != null)
             {
                 DeletePhysicalFiles(book.Attachments.ToList());
-                _context.BookAttachments.RemoveRange(book.Attachments);
-                _context.Books.Remove(book);
-                await _context.SaveChangesAsync();
+                _bookRepository.Delete(book);
+                _bookRepository.Save();
             }
 
             return RedirectToAction("Index");
@@ -280,52 +270,16 @@ namespace WebApplication1.Controllers
 
         private void LoadDropDownData(BookCreateViewModel vm)
         {
-            vm.Authors = _context.Authors.AsNoTracking()
-                .Select(a => new SelectListItem
-                {
-                    Value = a.Id.ToString(),
-                    Text = a.Name
-                }).ToList();
-
-            vm.Categories = _context.Categories.AsNoTracking()
-                .Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Name
-                }).ToList();
-
-            vm.Statuses = Enum.GetValues(typeof(BookStatus))
-                .Cast<BookStatus>()
-                .Select(s => new SelectListItem
-                {
-                    Value = s.ToString(),
-                    Text = s.ToString()
-                }).ToList();
+            vm.Authors = _bookRepository.GetAuthorSelectList();
+            vm.Categories = _bookRepository.GetCategorySelectList();
+            vm.Statuses = _bookRepository.GetStatusSelectList();
         }
 
         private void LoadDropDownData(BookEditViewModel vm)
         {
-            vm.Authors = _context.Authors.AsNoTracking()
-                .Select(a => new SelectListItem
-                {
-                    Value = a.Id.ToString(),
-                    Text = a.Name
-                }).ToList();
-
-            vm.Categories = _context.Categories.AsNoTracking()
-                .Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Name
-                }).ToList();
-
-            vm.Statuses = Enum.GetValues(typeof(BookStatus))
-                .Cast<BookStatus>()
-                .Select(s => new SelectListItem
-                {
-                    Value = s.ToString(),
-                    Text = s.ToString()
-                }).ToList();
+            vm.Authors = _bookRepository.GetAuthorSelectList();
+            vm.Categories = _bookRepository.GetCategorySelectList();
+            vm.Statuses = _bookRepository.GetStatusSelectList();
         }
 
         private async Task<List<BookAttachment>> SaveFilesAsync(List<IFormFile> files, int bookId)
@@ -340,7 +294,8 @@ namespace WebApplication1.Controllers
 
             foreach (var file in files)
             {
-                if (file.Length <= 0) continue;
+                if (file.Length <= 0)
+                    continue;
 
                 var storedFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
                 var physicalPath = Path.Combine(uploadsFolder, storedFileName);
@@ -365,7 +320,9 @@ namespace WebApplication1.Controllers
         {
             foreach (var attachment in attachments)
             {
-                var relativePath = attachment.FilePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+                var relativePath = attachment.FilePath.TrimStart('/')
+                    .Replace("/", Path.DirectorySeparatorChar.ToString());
+
                 var physicalPath = Path.Combine(_environment.WebRootPath, relativePath);
 
                 if (System.IO.File.Exists(physicalPath))

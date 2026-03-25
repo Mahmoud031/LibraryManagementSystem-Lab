@@ -1,4 +1,5 @@
 using LibraryManagementSystem.Data;
+using LibraryManagementSystem.Repositories.Books;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Middlewires;
 
@@ -9,6 +10,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         "Server=.;Database=LibraryManagementDB;Trusted_Connection=True;TrustServerCertificate=True;"));
+
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 
 var app = builder.Build();
 
@@ -30,7 +33,6 @@ app.UseMiddleware<BookDetailsMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
 
 app.MapFallback(async context =>
 {

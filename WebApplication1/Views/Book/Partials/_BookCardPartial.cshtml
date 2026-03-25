@@ -1,0 +1,21 @@
+﻿@model WebApplication1.Dtos.Books.BookCardDto
+
+<div class="card shadow-sm border-0 rounded-4 h-100">
+    <div class="card-body">
+        <h5 class="card-title mb-3">@Model.Title</h5>
+
+        <p class="mb-2"><strong>Author:</strong> @Model.AuthorName</p>
+        <p class="mb-2"><strong>Category:</strong> @Model.CategoryName</p>
+        <p class="mb-2"><strong>Publish Year:</strong> @Model.PublishYear</p>
+        <p class="mb-2"><strong>Price:</strong> @Model.Price</p>
+        <p class="mb-2"><strong>Files:</strong> @Model.AttachmentsCount</p>
+        <p class="mb-3">
+            <strong>Availability:</strong>
+            <book-availability status="@Model.Status" is-restricted="@Model.IsRestricted"></book-availability>
+        </p>
+
+        <a asp-controller="Book" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary">
+            View Details
+        </a>
+    </div>
+</div>

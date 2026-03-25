@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ef core lab2\ef core lab2 q1\LibraryManagementSystem.csproj" />
+    <ProjectReference Include="..\LibraryManagementSystem.Repositories\LibraryManagementSystem.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="../ef core lab2/ef core lab2 q1/LibraryManagementSystem.csproj" />
+  <Project Path="LibraryManagementSystem.Repositories/LibraryManagementSystem.Repositories.csproj" Id="86e41a17-b5b5-4096-aa83-6fa178b8d95b" />
   <Project Path="WebApplication1/WebApplication1.csproj" />
 </Solution>
