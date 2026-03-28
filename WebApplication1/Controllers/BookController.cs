@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Repositories.Books;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebApplication1.ViewModels;
@@ -63,6 +64,7 @@ namespace WebApplication1.Controllers
             return View(vm);
         }
 
+        [Authorize]
         public IActionResult Details(int id)
         {
             var book = _bookRepository.GetDetails(id);
@@ -97,6 +99,7 @@ namespace WebApplication1.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Librarian")]
         [HttpGet]
         public IActionResult Add()
         {
@@ -105,6 +108,7 @@ namespace WebApplication1.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Librarian")]
         [HttpPost]
         public async Task<IActionResult> Add(BookCreateViewModel vm)
         {
@@ -146,6 +150,7 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Librarian")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -178,6 +183,7 @@ namespace WebApplication1.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Librarian")]
         [HttpPost]
         public async Task<IActionResult> Edit(BookEditViewModel vm)
         {
@@ -221,6 +227,7 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Librarian")]
         [HttpGet]
         public IActionResult Delete(int id)
         {
@@ -253,6 +260,7 @@ namespace WebApplication1.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Librarian")]
         [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
@@ -332,4 +340,4 @@ namespace WebApplication1.Controllers
             }
         }
     }
-}
+}   

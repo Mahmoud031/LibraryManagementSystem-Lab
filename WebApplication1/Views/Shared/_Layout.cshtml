@@ -18,7 +18,7 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav ms-auto gap-lg-2">
+                <ul class="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
                     <li class="nav-item">
                         <a class="nav-link fw-semibold" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
@@ -31,6 +31,29 @@
                     <li class="nav-item">
                         <a class="nav-link fw-semibold" asp-controller="Author" asp-action="Index">Authors</a>
                     </li>
+
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" asp-controller="Account" asp-action="Profile">
+                                @User.Identity.Name
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-link nav-link fw-semibold">Logout</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" asp-controller="Account" asp-action="Register">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold" asp-controller="Account" asp-action="Login">Login</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

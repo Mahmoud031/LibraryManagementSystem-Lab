@@ -1,0 +1,17 @@
+﻿@model LibraryManagementSystem.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container py-5">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h2 class="mb-4">Current User Data</h2>
+
+            <p><strong>Full Name:</strong> @Model.FullName</p>
+            <p><strong>User Name:</strong> @Model.UserName</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,8 @@
 using LibraryManagementSystem.Data;
+using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Repositories.Books;
+using LibraryManagementSystem.Repositories.Roles;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Middlewires;
 
@@ -11,9 +14,45 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         "Server=.;Database=LibraryManagementDB;Trusted_Connection=True;TrustServerCertificate=True;"));
 
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequiredLength = 6;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 var app = builder.Build();
+
+async Task SeedRolesAsync(IServiceProvider services)
+{
+    using var scope = services.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    string[] roles = { "Member", "Librarian" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
+
+await SeedRolesAsync(app.Services);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -25,6 +64,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseMiddleware<RequestLogMiddleware>();
 app.UseMiddleware<BookListMiddleware>();
